@@ -17,37 +17,50 @@ export default function Home() {
   )
 
   useEffect(() => {
-    const fetchMakes = async () => {
+    const generateStaticParams = async () => {
       try {
-        const response = await fetch(
+        const makesResponse = await fetch(
           'https://vpic.nhtsa.dot.gov/api/vehicles/GetMakesForVehicleType/car?format=json'
         )
-        const data = await response.json()
-        console.log(data)
-        setMakes(data.Results)
+        const makesData = await makesResponse.json()
+        setMakes(makesData.Results)
+        const currentYear = new Date().getFullYear()
+        const years = Array.from(
+          { length: currentYear - 2015 + 1 },
+          (_, i) => (currentYear - i).toString()
+        )
+    
+        const paths = makesData.Results.flatMap(make => 
+          years.map(year => ({
+            makeId: make.MakeId.toString(),
+            year: year
+          }))
+        )
+    
+        return paths
       } catch (error) {
-        console.error('Error fetching makes:', error)
+        console.error('Error generating static params:', error)
+        return []
       } finally {
-        setIsLoading(false)
-      }
+            setIsLoading(false)
+          }
     }
 
-    fetchMakes()
+    generateStaticParams()
   }, [])
 
   const isNextEnabled = selectedMake && selectedYear
 
-  const handleNext = () => {
-    if (!isNextEnabled) return
+  const handleMakeChange = (e) => {
+    const makeName = e.target.value
+    setSelectedMake(makeName)
     
-    const selectedMakeData = makes.find(make => make.MakeName === selectedMake)
-    if (selectedMakeData) {
-      router.push(`/result/${selectedMakeData.MakeId}/${selectedYear}`)
-    }
+    // Find and set MakeId
+    const selectedMake = makes.find(make => make.MakeName === makeName)
+    setSelectedMakeID(selectedMake ? selectedMake.MakeId.toString() : '')
   }
-
   return (
-    <div className="min-h-screen px-2 flex flex-col justify-center">
+    <div className="min-h-screen flex flex-col justify-center">
     <main className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
     <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">
@@ -65,7 +78,7 @@ export default function Home() {
           <select
             id="make"
             value={selectedMake}
-            onChange={(e) => setSelectedMake(e.target.value) }
+            onChange={handleMakeChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             disabled={isLoading}
           >
@@ -102,8 +115,7 @@ export default function Home() {
 
         <div className="pt-4">
         <Link
-              // href={isNextEnabled ? `/result/${selectedMake.MakeId}/${selectedYear}` : '#'}
-              href={isNextEnabled ? `/results?make=${selectedMake}&year=${selectedYear}` : '#'}
+              href={isNextEnabled ? `/result/${selectedMakeID}/${selectedYear}` : '#'}
               className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white
                 ${isNextEnabled 
                   ? 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'

@@ -2,8 +2,6 @@ import React from "react";
 
 export default function ResultPage({
   params,
-}: {
-  params: { makeId: string; year: string }
 }) {
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -12,8 +10,8 @@ export default function ResultPage({
           Results
         </h1>
         <div>
-          <p>Make ID: {params.makeId}</p>
-          <p>Year: {params.year}</p>
+          <p className="mb-2">Make ID: {params.makeId}</p>
+          <p className="mb-2">Year: {params.year}</p>
         </div>
       </div>
     </div>
