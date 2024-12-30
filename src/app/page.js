@@ -1,4 +1,5 @@
 'use client';
+import { getMakesUrl } from "../utils/api";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -18,10 +19,8 @@ export default function Home() {
 
   useEffect(() => {
     const generateStaticParams = async () => {
-      try {
-        const makesResponse = await fetch(
-          'https://vpic.nhtsa.dot.gov/api/vehicles/GetMakesForVehicleType/car?format=json'
-        )
+      try {     
+        const makesResponse = await fetch(getMakesUrl())
         const makesData = await makesResponse.json()
         setMakes(makesData.Results)
         const currentYear = new Date().getFullYear()
