@@ -1,13 +1,11 @@
+import { getModelsUrl } from "../../../../utils/api";
 import { notFound } from "next/navigation";
 import React from "react";
 
 export default async function ResultPage({ params }) {
-  
   async function getVehicleModels(makeId, year) {
-    try {
-      const response = await fetch(
-        `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeIdYear/makeId/${makeId}/modelyear/${year}?format=json`
-      );
+    try {     
+      const response = await fetch(getModelsUrl(makeId, year));
 
       if (!response.ok) {
         throw new Error("Failed to fetch models");
